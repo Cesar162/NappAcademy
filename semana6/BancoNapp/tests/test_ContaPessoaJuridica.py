@@ -10,18 +10,18 @@ class TestContaPessoaJuridica:
         assert issubclass(ContaPessoaJuridica, Conta)
 
     def test_instanciar_objeto_somente_nome_empresa(self):
-        conta = ContaPessoaJuridica(empresa='Empresa XYZ')
-        assert conta.nome is None
+        conta = ContaPessoaJuridica(nome= 'Joãozinho Três Pernas', empresa='Empresa XYZ')
+        assert conta.nome
         assert conta.empresa == 'Empresa XYZ'
         assert conta.saldo == 0
-        assert conta.limite == 1500
+        assert conta.limite == 500
 
     def test_instanciar_objeto_saldo_positivo(self):
         conta = ContaPessoaJuridica(empresa='Empresa XYZ', nome='John Doe', saldo=10)
         assert conta.nome == 'John Doe'
         assert conta.empresa == 'Empresa XYZ'
         assert conta.saldo == 10
-        assert conta.limite == 1500
+        assert conta.limite == 500
 
     def test_instanciar_objeto_saldo_negativo(self):
         with pytest.raises(ValueError) as error:

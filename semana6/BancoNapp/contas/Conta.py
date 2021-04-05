@@ -14,7 +14,7 @@ class Conta:
         self.limite = kwargs.get('limite', 500)
         self.nome = kwargs.get('nome', None)
         self.saldo = 0
-        saldo = kwargs.get('saldo', self.saldo)
+        saldo = kwargs.get('saldo', 0)
         if saldo < 0:
             raise ValueError('Saldo negativo')
         self.saldo = saldo

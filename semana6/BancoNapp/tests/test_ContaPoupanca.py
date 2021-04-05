@@ -14,21 +14,21 @@ class TestContaPoupanca:
         assert conta.nome, 'John Doe'
         assert conta.profissao == ''
         assert conta.saldo == 0
-        assert conta.limite == 0
+        assert conta.limite == 500
 
     def test_instanciar_objeto_saldo_padrao(self):
         conta = ContaPoupanca(nome='John Doe', profissao='Dev Java')
         assert conta.nome, 'John Doe'
         assert conta.profissao == 'Dev Java'
         assert conta.saldo == 0
-        assert conta.limite == 0
+        assert conta.limite == 500
 
     def test_instanciar_objeto_saldo_positivo(self):
         conta = ContaPoupanca(nome='John Doe', profissao='Dev', saldo=10)
         assert conta.nome, 'John Doe'
         assert conta.profissao, 'Dev'
         assert conta.saldo == 10
-        assert conta.limite == 0
+        assert conta.limite == 500
 
     def test_instanciar_objeto_saldo_negativo(self):
         with pytest.raises(ValueError) as error:
@@ -99,10 +99,10 @@ class TestContaPoupanca:
 
     saque_com_falha = [
         (10, 2000),
-        (20, 20.01),
-        (100, 100.00001),
-        (0.90, 1.91),
-        (10.40, 11.41),
+        (20, 1000),
+        (100, 600),
+        (0.90, 1500.90),
+        (10.40, 50)        
     ]
 
     @pytest.mark.parametrize("valor_inicial, valor_saque", saque_com_falha)
@@ -144,29 +144,59 @@ class TestContaPoupanca:
         assert conta.get_extrato() == extrato
 
     juros_ok = [
-        (0.0, 100),
-        (0.001, 100.1),
-        (0.01, 101),
-        (0.1, 110),
-        (1, 200),
+        (0, 100),
+        (0.1, 100.1),
+        (1.0, 101),
+        (0.5, 100.5),
+        (0.9, 100.9)
     ]
 
     @pytest.mark.parametrize("juros, valor_final", juros_ok)
     def test_rendimento_aniversario_ok(self, juros, valor_final):
         conta = ContaPoupanca(nome='John Doe', saldo=100)
-        conta.rendimento_aniversario(juros)
+        conta.rendimento_aniversario(juros=juros, dias=400)
         assert conta.saldo == pytest.approx(valor_final)
 
     juros_incorretos = [
         (-0.0001),
         (-0.1),
-        (1.001),
-        (1.01),
+        (1001),
+        (101),
     ]
 
     @pytest.mark.parametrize("juros", juros_incorretos)
-    def test_rendimentos_com_erro(self, juros):
-        with pytest.raises(ValueError) as error:
+    def test_porcentagem_rendimento_maior_que_zero(self, juros): 
+        with pytest.raises(ValueError) as error_03:
             conta = ContaPoupanca(nome='John Doe', saldo=10)
-            conta.rendimento_aniversario(juros)
-        assert str(error.value) == 'Os juros precisam ser entre 0 (0%) e 1 (100%).'
+            conta.rendimento_aniversario(juros=juros,dias=366)
+        assert str(error_03.value) == 'O valor do rendimento deve ser maior que 0'
+
+    juros_incorretos = [
+        (-0.0001),
+        (-0.1),
+        (1001),
+        (101),
+    ]
+
+    @pytest.mark.parametrize("juros", juros_incorretos)
+    def test_porcentagem_rendimento_maior_que_zero(self, juros): 
+        with pytest.raises(ValueError) as error_03:
+            conta = ContaPoupanca(nome='John Doe', saldo=10)
+            conta.rendimento_aniversario(juros=juros,dias=366)
+        assert str(error_03.value) == 'O valor do rendimento deve ser maior que 0'
+
+
+    def test_rendimentos_com_erro(self):
+        with pytest.raises(TypeError) as error_01:
+            conta = ContaPoupanca(nome='John Doe', saldo=10)
+            conta.rendimento_aniversario(juros='juros', dias=305)
+        assert str(error_01.value) == 'O juros precisa ser um valor numérico'
+
+    def test_ano_para_rendimento(self):        
+        with pytest.raises(TypeError) as error_02:
+            obj = ContaPoupanca(nome='John Doe', saldo=10)
+            obj.rendimento_aniversario(juros=1, dias='data')
+        assert str(error_02.value) == 'A quantidade de dias precisa ser numérico'
+
+
+
